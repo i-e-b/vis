@@ -3,6 +3,7 @@
 #include <sregex.h>
 
 #include "text-regex.h"
+#include "text-motions.h"
 
 struct Regex {
 	sre_pool_t *pool;     /* pool for parsing and compiling */
@@ -18,7 +19,7 @@ static sre_uint_t regex_capture_size(Regex *r) {
 }
 
 static int translate_cflags(int cflags) {
-	return 0;
+	return (cflags & REG_ICASE) ? SRE_REGEX_CASELESS : 0;
 }
 
 static sre_vm_pike_ctx_t *make_context(Regex *r) {
@@ -27,16 +28,6 @@ static sre_vm_pike_ctx_t *make_context(Regex *r) {
 
 static void destroy_context(sre_vm_pike_ctx_t *ctx, Regex *r) {
 	sre_reset_pool(r->mpool);
-}
-
-static void fill_match(Regex *r, size_t nmatch, RegexMatch pmatch[], size_t offset) {
-	sre_int_t *cap = r->captures;
-	for (size_t i = 0; i < nmatch; i++) {
-		pmatch[i].start = *cap == -1 ? EPOS : *cap + offset;
-		++cap;
-		pmatch[i].end = *cap == -1 ? EPOS : *cap + offset;
-		++cap;
-	}
 }
 
 Regex *text_regex_new(void) {
@@ -83,21 +74,25 @@ int text_regex_match(Regex *r, const char *data, int eflags) {
 	sre_vm_pike_ctx_t *ctx = make_context(r);
 	sre_int_t result = sre_vm_pike_exec(ctx, (sre_char*)data, strlen(data), 1, &unused);
 	destroy_context(ctx, r);
-	return result >= 0;
-}
-
-static int match_once(sre_vm_pike_ctx_t *ctx, Iterator *it) {
-	sre_int_t *unused;
-	return sre_vm_pike_exec(ctx, (sre_char*)it->text, it->end - it->text,
-	                        text_iterator_last(it) ? 1 : 0, &unused);
+	return result >= 0 ? 0 : REG_NOMATCH;
 }
 
 int text_search_range_forward(Text *txt, size_t pos, size_t len, Regex *r, size_t nmatch, RegexMatch pmatch[], int eflags) {
-	int ret = 0;
+	int ret = REG_NOMATCH;
 	sre_vm_pike_ctx_t *ctx = make_context(r);
+	size_t end = pos + len;
 
 	text_iterate(txt, it, pos) {
-		sre_int_t result = match_once(ctx, &it);
+		len = it.end - it.text;
+		size_t newpos = pos + len;
+		if (newpos > end) {
+			len = end - pos;
+			newpos = end;
+		}
+
+		sre_int_t *unused;
+		sre_int_t result = sre_vm_pike_exec(ctx, (sre_char*)it.text, len,
+	                                            newpos == end ? 1 : 0, &unused);
 
 		if (result == SRE_DECLINED || result == SRE_ERROR) {
 			ret = REG_NOMATCH;
@@ -105,10 +100,18 @@ int text_search_range_forward(Text *txt, size_t pos, size_t len, Regex *r, size_
 		}
 
 		if (result >= 0) {
-			fill_match(r, nmatch, pmatch, pos);
+			sre_int_t *cap = r->captures;
+			for (size_t i = 0; i < nmatch; i++) {
+				pmatch[i].start = *cap == -1 ? EPOS : *cap + pos;
+				++cap;
+				pmatch[i].end = *cap == -1 ? EPOS : *cap + pos;
+				++cap;
+			}
 			ret = 0;
 			break;
 		}
+
+		pos = newpos;
 	}
 
 	destroy_context(ctx, r);
@@ -117,33 +120,17 @@ int text_search_range_forward(Text *txt, size_t pos, size_t len, Regex *r, size_
 
 int text_search_range_backward(Text *txt, size_t pos, size_t len, Regex *r, size_t nmatch, RegexMatch pmatch[], int eflags) {
 	int ret = REG_NOMATCH;
+	size_t end = pos + len;
 
-	text_iterate(txt, it, pos) {
-		while (it.text != it.end) {
-			sre_vm_pike_ctx_t *ctx = make_context(r);
-			sre_int_t result = match_once(ctx, &it);
-			destroy_context(ctx, r);
-
-			if (result == SRE_DECLINED || result == SRE_ERROR)
-				return REG_NOMATCH;
-
-			if (result == SRE_AGAIN)
-				break;
-
-			ret = 0;
-			fill_match(r, nmatch, pmatch, it.pos);
-
-			if (r->captures[0] == 0 && r->captures[1] == 0) {
-				char b = '\0';
-
-				do {
-				    text_iterator_byte_next(&it, &b);
-				} while (b != '\n');
-
-				text_iterator_byte_next(&it, &b);
-			} else {
-				text_iterator_bytes_skip(&it, r->captures[1]);
-			}
+	while (pos < end && !text_search_range_forward(txt, pos, len, r, nmatch, pmatch, eflags)) {
+		ret = 0;
+		if (r->captures[0] == 0 && r->captures[1] == 0) {
+			size_t next = text_line_next(txt, pos);
+			len -= (next - pos);
+			pos = next;
+		} else {
+			len -= r->captures[1];
+			pos += r->captures[1];
 		}
 	}
 

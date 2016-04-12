@@ -1287,10 +1287,6 @@ bool text_iterator_byte_get(Iterator *it, char *b) {
 	return false;
 }
 
-bool text_iterator_last(const Iterator *it) {
-        return text_iterator_valid(it) && !it->piece->next->text;
-}
-
 bool text_iterator_next(Iterator *it) {
 	return text_iterator_init(it, it->pos, it->piece ? it->piece->next : NULL, 0);
 }
@@ -1302,24 +1298,6 @@ bool text_iterator_prev(Iterator *it) {
 bool text_iterator_valid(const Iterator *it) {
 	/* filter out sentinel nodes */
 	return it->piece && it->piece->text;
-}
-
-bool text_iterator_bytes_skip(Iterator *it, size_t count) {
-	if (!text_iterator_valid(it))
-		return false;
-
-	size_t remaining = count;
-
-	while (it->text + remaining >= it->end) {
-		remaining -= (it->end - it->text);
-		if (!text_iterator_next(it))
-			return false;
-		it->text = it->start;
-	}
-
-	it->text += remaining;
-	it->pos += remaining;
-	return true;
 }
 
 bool text_iterator_byte_next(Iterator *it, char *b) {
