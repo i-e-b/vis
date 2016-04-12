@@ -1287,7 +1287,7 @@ bool text_iterator_byte_get(Iterator *it, char *b) {
 	return false;
 }
 
-bool text_iterator_at_end(const Iterator *it) {
+bool text_iterator_last(const Iterator *it) {
         return text_iterator_valid(it) && !it->piece->next->text;
 }
 
@@ -1304,22 +1304,21 @@ bool text_iterator_valid(const Iterator *it) {
 	return it->piece && it->piece->text;
 }
 
-bool text_iterator_skip_bytes(Iterator *it, size_t count) {
+bool text_iterator_bytes_skip(Iterator *it, size_t count) {
 	if (!text_iterator_valid(it))
 		return false;
 
-        size_t remaining = count;
+	size_t remaining = count;
 
 	while (it->text + remaining >= it->end) {
-                remaining -= (it->end - it->text);
-                if (!text_iterator_next(it))
-                        return false;
-                it->text = it->start;
+		remaining -= (it->end - it->text);
+		if (!text_iterator_next(it))
+			return false;
+		it->text = it->start;
 	}
 
-        it->text += remaining;
+	it->text += remaining;
 	it->pos += remaining;
-
 	return true;
 }
 
