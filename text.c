@@ -150,7 +150,7 @@ static Action *action_alloc(Text *txt);
 static void action_free(Action *a);
 /* logical line counting cache */
 static void lineno_cache_invalidate(LineCache *cache);
-static size_t lines_skip_forward(Text *txt, size_t pos, size_t lines, size_t *lines_skiped);
+static size_t lines_skip_forward(Text *txt, size_t pos, size_t lines, size_t *lines_skipped);
 static size_t lines_count(Text *txt, size_t pos, size_t len);
 
 static ssize_t write_all(int fd, const char *buf, size_t count) {
@@ -1287,6 +1287,10 @@ bool text_iterator_byte_get(Iterator *it, char *b) {
 	return false;
 }
 
+bool text_iterator_at_end(const Iterator *it) {
+        return text_iterator_valid(it) && !it->piece->next->text;
+}
+
 bool text_iterator_next(Iterator *it) {
 	return text_iterator_init(it, it->pos, it->piece ? it->piece->next : NULL, 0);
 }
@@ -1298,6 +1302,25 @@ bool text_iterator_prev(Iterator *it) {
 bool text_iterator_valid(const Iterator *it) {
 	/* filter out sentinel nodes */
 	return it->piece && it->piece->text;
+}
+
+bool text_iterator_skip_bytes(Iterator *it, size_t count) {
+	if (!text_iterator_valid(it))
+		return false;
+
+        size_t remaining = count;
+
+	while (it->text + remaining >= it->end) {
+                remaining -= (it->end - it->text);
+                if (!text_iterator_next(it))
+                        return false;
+                it->text = it->start;
+	}
+
+        it->text += remaining;
+	it->pos += remaining;
+
+	return true;
 }
 
 bool text_iterator_byte_next(Iterator *it, char *b) {

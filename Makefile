@@ -1,9 +1,11 @@
 -include config.mk
 
+REGEX_SRC ?= text-regex.c
+
 SRC = array.c buffer.c libutf.c main.c map.c register.c ring-buffer.c \
-	sam.c text.c text-motions.c text-objects.c text-regex.c text-util.c \
+	sam.c text.c text-motions.c text-objects.c text-util.c \
 	ui-curses.c view.c vis.c vis-lua.c vis-modes.c vis-motions.c \
-	vis-operators.c vis-prompt.c vis-text-objects.c
+	vis-operators.c vis-prompt.c vis-text-objects.c $(REGEX_SRC)
 
 # conditionally initialized, this is needed for standalone build
 # with empty config.mk
@@ -21,7 +23,7 @@ CFLAGS_STD ?= -std=c99 -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 -DNDEBUG
 LDFLAGS_STD ?= -lc
 
 CFLAGS_VIS = $(CFLAGS_AUTO) $(CFLAGS_TERMKEY) $(CFLAGS_CURSES) $(CFLAGS_ACL) \
-	$(CFLAGS_SELINUX) $(CFLAGS_LUA) $(CFLAGS_STD)
+	$(CFLAGS_SELINUX) $(CFLAGS_SREGEX) $(CFLAGS_LUA) $(CFLAGS_STD)
 
 CFLAGS_VIS += -DVERSION=\"${VERSION}\"
 CFLAGS_VIS += -DCONFIG_LUA=${CONFIG_LUA}
@@ -29,7 +31,7 @@ CFLAGS_VIS += -DCONFIG_SELINUX=${CONFIG_SELINUX}
 CFLAGS_VIS += -DCONFIG_ACL=${CONFIG_ACL}
 
 LDFLAGS_VIS = $(LDFLAGS_AUTO) $(LDFLAGS_TERMKEY) $(LDFLAGS_CURSES) $(LDFLAGS_ACL) \
-	$(LDFLAGS_SELINUX) $(LDFLAGS_LUA) $(LDFLAGS_STD)
+	$(LDFLAGS_SELINUX) $(LDFLAGS_LUA) $(LDFLAGS_SREGEX) $(LDFLAGS_STD)
 
 DEBUG_CFLAGS_VIS = ${CFLAGS_VIS} -UNDEBUG -O0 -g -ggdb -Wall -Wextra -pedantic \
 	-Wno-missing-field-initializers -Wno-unused-parameter
