@@ -1,9 +1,15 @@
 #ifndef TEXT_H
 #define TEXT_H
 
+#ifndef _WIN32
 #include <stdbool.h>
+#endif
 #include <time.h>
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#include "unistd.h"
+#endif
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>

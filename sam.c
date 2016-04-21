@@ -6,11 +6,19 @@
  *  Copyright © 2016 Marc André Tanner <mat at brain-dump.org>
  */
 #include <string.h>
+#ifndef _WIN32
 #include <strings.h>
+#endif
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
+
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#include "unistd.h"
+#endif
+
 #include <limits.h>
 #include "sam.h"
 #include "vis-core.h"
@@ -1213,4 +1221,6 @@ static bool cmd_cd(Vis *vis, Win *win, Command *cmd, const char *argv[], Cursor 
 	return dir && chdir(dir) == 0;
 }
 
+#define SAM_C 1
 #include "vis-cmds.c"
+#undef SAM_C

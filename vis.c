@@ -1,8 +1,14 @@
 #include <locale.h>
 #include <stdlib.h>
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#include "unistd.h"
+#endif
 #include <string.h>
+#ifndef _WIN32
 #include <strings.h>
+#endif
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>

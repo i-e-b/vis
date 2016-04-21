@@ -6,3 +6,7 @@
 *.o
 /vis
 /dependency
+Debug
+vis.opensdf
+vis.sdf
+*.user

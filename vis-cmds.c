@@ -1,4 +1,5 @@
 /* this file is included from sam.c */
+#ifdef SAM_C
 
 #ifndef VIS_OPEN
 #define VIS_OPEN "vis-open"
@@ -706,3 +707,5 @@ static bool cmd_unmap(Vis *vis, Win *win, Command *cmd, const char *argv[], Curs
 	else
 		return vis_mode_unmap(vis, mode, lhs);
 }
+
+#endif /* ifdef SAM_C */
