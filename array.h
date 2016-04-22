@@ -2,7 +2,9 @@
 #define ARRAY_H
 
 #include <stddef.h>
+#ifndef _WIN32
 #include <stdbool.h>
+#endif
 
 /* A dynamically growing array, there exist two typical ways to use it:
  *

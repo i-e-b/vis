@@ -2,7 +2,9 @@
 #define BUFFER_H
 
 #include <stddef.h>
+#ifndef _WIN32
 #include <stdbool.h>
+#endif
 #include "text.h"
 
 /* a dynamically growing buffer storing arbitrary data, used for registers/macros */

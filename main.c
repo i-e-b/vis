@@ -74,7 +74,7 @@ static const char *gotoline(Vis*, const char *keys, const Arg *arg);
 /* set motion type either LINEWISE or CHARWISE via arg->i */
 static const char *motiontype(Vis*, const char *keys, const Arg *arg);
 /* make the current action use the operator indicated by arg->i */
-static const char *operator(Vis*, const char *keys, const Arg *arg);
+static const char *operator (Vis*, const char *keys, const Arg *arg);
 /* use arg->s as command for the filter operator */
 static const char *operator_filter(Vis*, const char *keys, const Arg *arg);
 /* blocks to read a key and performs movement indicated by arg->i which

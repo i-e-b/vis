@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#include "unistd.h"
+#endif
 #include <libgen.h>
 #include <sys/types.h>
 #include <pwd.h>

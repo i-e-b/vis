@@ -1,7 +1,9 @@
 #ifndef TEXT_UTIL_H
 #define TEXT_UTIL_H
 
+#ifndef _WIN32
 #include <stdbool.h>
+#endif
 #include <stddef.h>
 #include "text.h"
 

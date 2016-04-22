@@ -3,7 +3,9 @@
 
 #include <signal.h>
 #include <stddef.h>
+#ifndef _WIN32
 #include <stdbool.h>
+#endif
 
 typedef struct Vis Vis;
 typedef struct File File;

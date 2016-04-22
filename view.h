@@ -2,7 +2,9 @@
 #define VIEW_H
 
 #include <stddef.h>
+#ifndef _WIN32
 #include <stdbool.h>
+#endif
 #if CONFIG_LUA
 #include <lua.h>
 #else

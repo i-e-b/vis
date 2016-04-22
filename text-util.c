@@ -1,5 +1,8 @@
 #include "text-util.h"
 #include "util.h"
+#ifdef _WIN32
+#include "wcwidth.h"
+#endif
 #include <wchar.h>
 #include <errno.h>
 

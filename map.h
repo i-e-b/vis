@@ -1,7 +1,9 @@
 #ifndef MAP_H
 #define MAP_H
 
+#ifndef _WIN32
 #include <stdbool.h>
+#endif
 
 typedef struct Map Map;
 

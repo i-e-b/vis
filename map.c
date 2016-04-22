@@ -12,7 +12,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#ifndef _WIN32
 #include <inttypes.h>
+#else
+#include "inttypes.h"
+#endif
 #include "map.h"
 
 typedef struct Node Node;
@@ -127,7 +131,7 @@ bool map_put(Map *map, const char *k, const void *value)
 	new_dir = ((bytes[byte_num]) >> bit_num) & 1;
 
 	/* Allocate new node. */
-	newn = malloc(sizeof(*newn));
+	newn = (Node*)malloc(sizeof(*newn));
 	if (!newn) {
 		free(key);
 		errno = ENOMEM;
@@ -314,7 +318,7 @@ bool map_empty(const Map *map)
 
 Map *map_new(void)
 {
-	return calloc(1, sizeof(Map));
+	return (Map *)calloc(1, sizeof(Map));
 }
 
 void map_free(Map *map)

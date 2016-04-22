@@ -16,7 +16,7 @@ bool buffer_grow(Buffer *buf, size_t size) {
 		size = BUF_SIZE;
 	if (buf->size < size) {
 		size = MAX(size, buf->size*2);
-		char *data = realloc(buf->data, size);
+		char *data = (char*)realloc(buf->data, size);
 		if (!data)
 			return false;
 		buf->size = size;

@@ -21,7 +21,7 @@ bool array_reserve(Array *arr, size_t count) {
 		count = ARRAY_SIZE;
 	if (arr->count < count) {
 		count = MAX(count, arr->count*2);
-		char *items = realloc(arr->items, count * arr->elem_size);
+		char *items = (char*)realloc(arr->items, count * arr->elem_size);
 		if (!items)
 			return false;
 		arr->count = count;
@@ -64,7 +64,7 @@ void *array_get_ptr(Array *arr, size_t idx) {
 		errno = ENOTSUP;
 		return NULL;
 	}
-	void **ptr = array_get(arr, idx);
+	void **ptr = (void **)array_get(arr, idx);
 	return ptr ? *ptr : NULL;
 }
 

@@ -1,7 +1,9 @@
 #ifndef UI_H
 #define UI_H
 
+#ifndef _WIN32
 #include <stdbool.h>
+#endif
 #include <stdarg.h>
 #include <termkey.h>
 
